@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Post } from '../models/Post.model';
+import { PostService } from '../services/post.service';
 
 @Component({
   selector: 'app-post-list-item',
@@ -10,16 +11,43 @@ import { Post } from '../models/Post.model';
 export class PostListItemComponent implements OnInit {
 
 	@Input() post: Post;
+	@Input() msgLike: string; 
 
-	constructor() { }
+	constructor(private postService: PostService ) { 
+	}
 
-	ngOnInit() { }
+	updateLike() {
+		const strLike = 'Like(s): ';
+		const strDislike = 'Dislike(s): ';
+		var nbLike = Number( this.post.loveIts );
+		
+		if ( this.post.loveIts > 0 ) {
+			this.msgLike = strLike.concat( nbLike.toString() );
+			
+		} else if ( this.post.loveIts < 0 )	{
+			nbLike = nbLike * -1;
+			this.msgLike = strDislike.concat( nbLike.toString() );
+		
+		} else {
+			this.msgLike = '';
+		}
+	}
+	
+	ngOnInit() {
+		this.updateLike();
+	}
 
 	onSwitchLove() {
-		this.post.loveIts++;
+		this.postService.incrementPost( this.post.id );
+		this.updateLike();
 	}	
 	
 	onSwitchDislike() {
-		this.post.loveIts--;
+		this.postService.decrementPost( this.post.id );
+		this.updateLike();
+	}
+	
+	onSwitchDelete() {
+		this.postService.delPost( this.post.id );
 	}
 }
